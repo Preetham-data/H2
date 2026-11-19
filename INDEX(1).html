@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>H2 STUDIO — Industrial Graphite & Art Marketplace</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --obsidian: #09090b;
+      --slate-card: #121216;
+      --gold: #d4af37;
+      --gold-light: #f3e5ab;
+    }
+    body {
+      background-color: var(--obsidian);
+      color: #f4f4f5;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.12), transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(212, 175, 55, 0.12), transparent 40%);
+    }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    .font-serif-letter { font-family: 'Playfair Display', serif; }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa7c11 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-btn {
+      background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 55%, #b5891b 100%);
+      color: #09090b;
+      font-weight: 700;
+      transition: all 0.25s ease;
+    }
+    .gold-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+    }
+    .glass-panel {
+      background: rgba(18, 18, 22, 0.85);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+    .studio-pass-card {
+      background: linear-gradient(135deg, #18181f 0%, #0d0d10 50%, #1c1917 100%);
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 25px rgba(212, 175, 55, 0.15);
+      transition: transform 0.15s ease;
+    }
+    canvas.scratch-pad {
+      touch-action: none;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP NAVIGATION -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-amber-500/20 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('drops')">
+        <!-- H2 Metallic Infinity-Arrow SVG Emblem -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-800 to-black border border-amber-400/50 flex items-center justify-center shadow-lg">
+          <svg class="w-6 h-6 text-amber-300" viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 28C11.3726 28 6 22.6274 6 16C6 9.37258 11.3726 4 18 4C23.5 4 27 8 32 14L44 26C48 30 58 28 58 18C58 10 51 6 45 8L36 17" />
+            <path d="M47 4H58V15" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-wider gold-gradient-text">H2 STUDIO</h1>
+          <p class="text-[11px] text-zinc-400 tracking-widest uppercase">Graphite & Art Collective</p>
+        </div>
+      </div>
+
+      <nav class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm">
+        <button onclick="switchTab('drops')" id="nav-drops" class="nav-btn px-3 py-1.5 rounded-lg bg-amber-400/15 text-amber-300 border border-amber-400/30 font-medium">Upcoming Drops</button>
+        <button onclick="switchTab('market')" id="nav-market" class="nav-btn px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white">Marketplace</button>
+        <button onclick="switchTab('mentor')" id="nav-mentor" class="nav-btn px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white">H2 Art Mentor</button>
+        <button onclick="switchTab('orders')" id="nav-orders" class="nav-btn px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white">100% Proof Ledger</button>
+        <button onclick="switchTab('sell')" id="nav-sell" class="nav-btn px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white">+ List Art (₹10)</button>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <span id="user-badge" class="hidden sm:inline-block text-xs px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-700 text-amber-300 font-mono-code">Guest Explorer</span>
+        <button onclick="openAuthModal()" id="auth-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-amber-400/40 text-amber-200 hover:bg-amber-400/10">Studio Pass / Login</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+
+    <!-- TAB 1: UPCOMING SKETCHES (SWIPE TO ERASE CHARCOAL) -->
+    <section id="tab-drops" class="tab-section space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-zinc-800 pb-5">
+        <div>
+          <span class="text-xs uppercase tracking-widest text-amber-400 font-mono-code">// LIVE STUDIO VAULT</span>
+          <h2 class="text-3xl font-bold mt-1">Upcoming Sketches & Unreleased Drops</h2>
+          <p class="text-zinc-400 text-sm mt-1">Drag your finger or cursor across the charcoal dust layer below to erase and reveal H2's upcoming artworks.</p>
+        </div>
+        <button onclick="resetScratchCards()" class="self-start text-xs px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300">Re-apply Charcoal Dust</button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="drops-grid">
+        <!-- Drop Card 1 -->
+        <div class="glass-panel rounded-2xl overflow-hidden flex flex-col">
+          <div class="relative h-64 bg-zinc-900 flex items-center justify-center overflow-hidden">
+            <div class="p-6 text-center select-none">
+              <div class="text-4xl mb-2">👁️</div>
+              <h4 class="font-bold text-amber-300 text-lg">"THE OBSIDIAN GAZE"</h4>
+              <p class="text-xs text-zinc-300 mt-1">Hyper-Realistic Charcoal & 8B Graphite on A3 300GSM Paper</p>
+              <span class="inline-block mt-3 px-2.5 py-1 bg-amber-500/20 text-amber-300 text-xs rounded-full">Dropping Friday • 8:00 PM IST</span>
+            </div>
+            <canvas class="scratch-pad absolute inset-0 w-full h-full" data-label="ERASE CHARCOAL TO REVEAL DROP #01"></canvas>
+          </div>
+          <div class="p-4 flex items-center justify-between border-t border-zinc-800/80">
+            <div>
+              <p class="text-xs text-zinc-400">Est. Time Invested</p>
+              <p class="font-semibold text-sm">28 Hours • Staedtler Mars Lumograph</p>
+            </div>
+            <button onclick="switchTab('market')" class="text-xs px-3 py-1.5 rounded-lg gold-btn">Pre-Book (₹10)</button>
+          </div>
+        </div>
+
+        <!-- Drop Card 2 -->
+        <div class="glass-panel rounded-2xl overflow-hidden flex flex-col">
+          <div class="relative h-64 bg-zinc-900 flex items-center justify-center overflow-hidden">
+            <div class="p-6 text-center select-none">
+              <div class="text-4xl mb-2">⚔️</div>
+              <h4 class="font-bold text-violet-300 text-lg">"RONIN IN SHADOWS"</h4>
+              <p class="text-xs text-zinc-300 mt-1">Anime Ink & Charcoal Cross-Hatching Study (A4)</p>
+              <span class="inline-block mt-3 px-2.5 py-1 bg-violet-500/20 text-violet-300 text-xs rounded-full">85% Completed</span>
+            </div>
+            <canvas class="scratch-pad absolute inset-0 w-full h-full" data-label="ERASE CHARCOAL TO REVEAL DROP #02"></canvas>
+          </div>
+          <div class="p-4 flex items-center justify-between border-t border-zinc-800/80">
+            <div>
+              <p class="text-xs text-zinc-400">Medium</p>
+              <p class="font-semibold text-sm">Compressed Charcoal + White Gel</p>
+            </div>
+            <button onclick="switchTab('market')" class="text-xs px-3 py-1.5 rounded-lg gold-btn">Notify / Order</button>
+          </div>
+        </div>
+
+        <!-- Drop Card 3 -->
+        <div class="glass-panel rounded-2xl overflow-hidden flex flex-col">
+          <div class="relative h-64 bg-zinc-900 flex items-center justify-center overflow-hidden">
+            <div class="p-6 text-center select-none">
+              <div class="text-4xl mb-2">🦁</div>
+              <h4 class="font-bold text-emerald-300 text-lg">"CROWN OF ASH"</h4>
+              <p class="text-xs text-zinc-300 mt-1">Custom Commission Portrait • Private Collector</p>
+              <span class="inline-block mt-3 px-2.5 py-1 bg-emerald-500/20 text-emerald-300 text-xs rounded-full">In Final Varnish Stage</span>
+            </div>
+            <canvas class="scratch-pad absolute inset-0 w-full h-full" data-label="ERASE CHARCOAL TO REVEAL DROP #03"></canvas>
+          </div>
+          <div class="p-4 flex items-center justify-between border-t border-zinc-800/80">
+            <div>
+              <p class="text-xs text-zinc-400">Slots Available</p>
+              <p class="font-semibold text-sm">2 Custom Slots Open</p>
+            </div>
+            <button onclick="switchTab('market')" class="text-xs px-3 py-1.5 rounded-lg gold-btn">Book Slot (₹10)</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: ART MARKETPLACE -->
+    <section id="tab-market" class="tab-section hidden space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-zinc-800 pb-5">
+        <div>
+          <span class="text-xs uppercase tracking-widest text-amber-400 font-mono-code">// FREE BROWSING • ₹10 COMMITMENT TO ORDER</span>
+          <h2 class="text-3xl font-bold mt-1">H2 & Community Art Marketplace</h2>
+          <p class="text-zinc-400 text-sm mt-1">Inspect artworks for free. Pay a ₹10 booking commitment to unlock delivery address upload & generate your official H2 bill.</p>
+        </div>
+      </div>
+
+      <div id="marketplace-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Populated dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- TAB 3: H2 ART MENTOR (ZERO TO HERO SKETCHING ONLY) -->
+    <section id="tab-mentor" class="tab-section hidden space-y-6">
+      <div class="border-b border-zinc-800 pb-5">
+        <span class="text-xs uppercase tracking-widest text-amber-400 font-mono-code">// STRICTLY SKETCHING & PAINTING AI</span>
+        <h2 class="text-3xl font-bold mt-1">H2 Beginner-to-Master Art Mentor</h2>
+        <p class="text-zinc-400 text-sm mt-1">Starting from zero? Tell the mentor what pencils/paper you own or ask any sketching/painting question.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Zero to Hero Roadmap Generator -->
+        <div class="glass-panel rounded-2xl p-5 space-y-4">
+          <h3 class="font-bold text-lg text-amber-300">1. Zero-to-One Practice Plan</h3>
+          <div>
+            <label class="text-xs text-zinc-400 block mb-1">What tools do you currently have?</label>
+            <select id="mentor-tools" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm">
+              <option value="basic">Just a ₹5 HB Pencil & Notebook</option>
+              <option value="graphite">Graphite Set (2H, HB, 2B, 6B, 8B) + Drawing Book</option>
+              <option value="charcoal">Charcoal Pencils, Blending Stump & Kneaded Eraser</option>
+              <option value="painting">Acrylic / Watercolor Paints & Brushes</option>
+            </select>
+          </div>
+          <button onclick="generateRoadmap()" class="w-full py-2.5 rounded-xl gold-btn text-sm">Generate 4-Week Drill Plan</button>
+          <div id="roadmap-output" class="text-xs text-zinc-300 bg-zinc-950/80 p-3.5 rounded-xl border border-zinc-800 space-y-2 leading-relaxed">
+            Select your tools above to get a structured daily drill plan from H2.
+          </div>
+        </div>
+
+        <!-- Sketching-Only Q&A Chat -->
+        <div class="lg:col-span-2 glass-panel rounded-2xl p-5 flex flex-col justify-between space-y-4">
+          <div>
+            <h3 class="font-bold text-lg text-amber-300">2. Ask H2 Mentor (Sketching & Painting Only)</h3>
+            <p class="text-xs text-zinc-400">Off-topic questions (coding, math, gossip) are automatically blocked to keep your studio focused.</p>
+          </div>
+          <div id="mentor-chat-box" class="h-64 overflow-y-auto bg-zinc-950/90 rounded-xl p-4 border border-zinc-800 space-y-3 text-sm">
+            <div class="bg-zinc-900 border border-amber-500/20 rounded-xl p-3 text-zinc-200">
+              <strong class="text-amber-300">H2 Mentor:</strong> Welcome to the studio. Whether you struggle with facial proportions, smooth charcoal shading, or mixing skin tones in paint—ask away.
+            </div>
+          </div>
+          <form onsubmit="askMentor(event)" class="flex gap-2">
+            <input id="mentor-input" type="text" placeholder="e.g., How do I shade hyper-realistic eyes without smudging?" class="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-amber-400" required />
+            <button type="submit" class="px-5 py-2.5 rounded-xl gold-btn text-sm">Ask</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: 100% VERIFIED ORDER HISTORY (TRUST LEDGER) -->
+    <section id="tab-orders" class="tab-section hidden space-y-6">
+      <div class="border-b border-zinc-800 pb-5">
+        <span class="text-xs uppercase tracking-widest text-emerald-400 font-mono-code">// 100% VERIFIED STUDIO PROOF</span>
+        <h2 class="text-3xl font-bold mt-1">Live Verified Order History & H2 Bills</h2>
+        <p class="text-zinc-400 text-sm mt-1">Public proof of real orders placed through H2 Studio (addresses masked for privacy). Click any order to view its generated H2 Invoice & Thank-You Letter.</p>
+      </div>
+
+      <div class="glass-panel rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-zinc-900/90 text-xs uppercase text-zinc-400 border-b border-zinc-800">
+              <tr>
+                <th class="px-4 py-3">Order ID</th>
+                <th class="px-4 py-3">Customer</th>
+                <th class="px-4 py-3">Artwork</th>
+                <th class="px-4 py-3">Delivery City</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">H2 Official Bill</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body" class="divide-y divide-zinc-800/70">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: ARTIST LISTING STUDIO (₹10 LISTING FEE) -->
+    <section id="tab-sell" class="tab-section hidden max-w-2xl mx-auto space-y-6">
+      <div class="glass-panel rounded-2xl p-6 space-y-5">
+        <div>
+          <span class="text-xs uppercase tracking-widest text-amber-400 font-mono-code">// ARTIST CREATOR PORTAL</span>
+          <h2 class="text-2xl font-bold mt-1">List Your Sketch or Painting for Sale</h2>
+          <p class="text-zinc-400 text-sm mt-1">Only you set your artwork rate and optional discount tags. A ₹10 platform listing fee applies to keep the marketplace spam-free.</p>
+        </div>
+
+        <form onsubmit="handleArtistListing(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-zinc-400 block mb-1">Artwork Title</label>
+              <input id="sell-title" type="text" placeholder="e.g., Midnight Charcoal Wolf" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="text-xs text-zinc-400 block mb-1">Artist Name / Instagram Handle</label>
+              <input id="sell-artist" type="text" placeholder="@your_art_handle" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="text-xs text-zinc-400 block mb-1">Your Fixed Rate (₹)</label>
+              <input id="sell-price" type="number" min="50" placeholder="1499" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="text-xs text-zinc-400 block mb-1">Discount % (Optional)</label>
+              <input id="sell-discount" type="number" min="0" max="80" value="10" class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="text-xs text-zinc-400 block mb-1">Size & Medium</label>
+              <input id="sell-medium" type="text" placeholder="A3 Graphite" required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-zinc-400 block mb-1">Artwork Story & Details</label>
+            <textarea id="sell-desc" rows="2" placeholder="Describe paper GSM, framing options, and hours spent..." required class="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 text-sm"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-xl gold-btn text-sm">Proceed to ₹10 Listing Payment & Publish</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL 1: ₹10 PAYMENT GATEWAY (HARIN Y M PHONEPE QR & MASKED MOBILE) -->
+  <div id="payment-modal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-panel max-w-md w-full rounded-2xl p-6 space-y-5 relative border border-amber-400/40">
+      <button onclick="closeModal('payment-modal')" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-xl">&times;</button>
+      
+      <div>
+        <span class="text-xs font-mono-code text-amber-400 uppercase">// H2 STUDIO VERIFIED GATEWAY</span>
+        <h3 id="pay-modal-title" class="text-xl font-bold mt-1">Pay ₹10 Commitment Fee</h3>
+        <p id="pay-modal-subtitle" class="text-xs text-zinc-400 mt-1">Pay directly to Studio Founder <strong class="text-white">HARIN Y M</strong> to unlock your order form.</p>
+      </div>
+
+      <!-- Payment Method Switcher -->
+      <div class="grid grid-cols-2 gap-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800">
+        <button onclick="setPayMode('qr')" id="btn-pay-qr" class="py-2 rounded-lg text-xs font-semibold bg-amber-400 text-black">Scan PhonePe QR</button>
+        <button onclick="setPayMode('mobile')" id="btn-pay-mobile" class="py-2 rounded-lg text-xs font-semibold text-zinc-400">Pay to Mobile</button>
+      </div>
+
+      <!-- QR Code Panel (Mobile Hidden) -->
+      <div id="panel-pay-qr" class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-center space-y-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-600/20 border border-purple-500/40 text-purple-300 text-xs font-semibold">
+          <span>पे</span> PhonePe • ACCEPTED HERE
+        </div>
+        <!-- Crisp Stylized UPI QR Representation -->
+        <div class="mx-auto w-44 h-44 bg-white p-2.5 rounded-xl flex items-center justify-center relative shadow-inner">
+          <svg viewBox="0 0 100 100" class="w-full h-full fill-black">
+            <rect x="5" y="5" width="25" height="25" fill="none" stroke="black" stroke-width="5"/>
+            <rect x="12" y="12" width="11" height="11"/>
+            <rect x="70" y="5" width="25" height="25" fill="none" stroke="black" stroke-width="5"/>
+            <rect x="77" y="12" width="11"
